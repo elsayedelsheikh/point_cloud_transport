@@ -45,6 +45,7 @@
 #include <point_cloud_transport/transport_hints.hpp>
 
 #include "point_cloud_transport/visibility_control.hpp"
+#include <point_cloud_transport/node_interfaces.hpp>
 
 namespace point_cloud_transport
 {
@@ -93,6 +94,15 @@ public:
     rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions())
   {
     return subscribeImpl(node, base_topic, callback, custom_qos, options);
+  }
+
+  void subscribe(
+    std::shared_ptr<NodeInterfaces> node_interfaces, const std::string & base_topic,
+    const Callback & callback,
+    rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
+    rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions())
+  {
+    return subscribeImpl(node_interfaces, base_topic, callback, custom_qos, options);
   }
 
   ///
@@ -166,10 +176,11 @@ protected:
     std::shared_ptr<rclcpp::Node> node,
     const std::string & base_topic,
     const Callback & callback,
-    rmw_qos_profile_t custom_qos = rmw_qos_profile_default) = 0;
+    rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
+    rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions()) = 0;
 
   virtual void subscribeImpl(
-    std::shared_ptr<rclcpp::Node> node,
+    std::shared_ptr<NodeInterfaces> node_interfaces,
     const std::string & base_topic,
     const Callback & callback,
     rmw_qos_profile_t custom_qos,
