@@ -73,7 +73,7 @@ public:
 
   POINT_CLOUD_TRANSPORT_PUBLIC
   Subscriber(
-    std::shared_ptr<NodeInterfaces> node_interfaces,
+    NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,
     const Callback & callback,
     SubLoaderPtr loader,

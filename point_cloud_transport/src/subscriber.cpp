@@ -49,7 +49,7 @@ namespace point_cloud_transport
 
 struct Subscriber::Impl
 {
-  Impl(std::shared_ptr<NodeInterfaces> node_interfaces, SubLoaderPtr loader)
+  Impl(NodeInterfaces::SharedPtr node_interfaces, SubLoaderPtr loader)
   : logger_(node_interfaces->logging->get_logger()),
     loader_(loader),
     unsubscribed_(false)
@@ -84,7 +84,7 @@ struct Subscriber::Impl
 };
 
 Subscriber::Subscriber(
-  std::shared_ptr<NodeInterfaces> node_interfaces,
+  NodeInterfaces::SharedPtr node_interfaces,
   const std::string & base_topic,
   const Callback & callback,
   SubLoaderPtr loader,

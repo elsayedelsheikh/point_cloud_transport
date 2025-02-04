@@ -63,7 +63,7 @@ namespace point_cloud_transport
 ///
 /// \tparam M Type of the subscribed messages.
 ///
-template<class M, class NodeType = rclcpp::Node>
+template<class M>
 class SimpleSubscriberPlugin : public SubscriberPlugin
 {
 public:
@@ -206,18 +206,24 @@ protected:
   }
 
   void subscribeImpl(
-    std::shared_ptr<NodeType> node,
+    NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,
     const Callback & callback,
-    rmw_qos_profile_t custom_qos,
-    rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions()) override
+    rmw_qos_profile_t custom_qos) override
   {
-    subscribeImpl(
-      create_node_interfaces(node), base_topic, callback, custom_qos, options);
+    impl_ = std::make_unique<Impl>(node_interfaces);
+    auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos), custom_qos);
+    impl_->sub_ = rclcpp::create_subscription<M>(
+      node_interfaces->parameters, node_interfaces->topics,
+      getTopicToSubscribe(base_topic), qos,
+      [this, callback](const typename std::shared_ptr<const M> msg) {
+        this->callback(msg, callback);
+      });
+    this->declareParameters();
   }
     
   void subscribeImpl(
-    std::shared_ptr<NodeInterfaces> node_interfaces,
+    NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,
     const Callback & callback,
     rmw_qos_profile_t custom_qos,
@@ -238,14 +244,14 @@ protected:
 private:
   struct Impl
   {
-    explicit Impl(std::shared_ptr<NodeInterfaces> node_interfaces)
+    explicit Impl(NodeInterfaces::SharedPtr node_interfaces)
     : node_interfaces_(node_interfaces),
       logger_(node_interfaces_->logging->get_logger())
     {
     }
 
     rclcpp::SubscriptionBase::SharedPtr sub_;
-    std::shared_ptr<NodeInterfaces> node_interfaces_;
+    NodeInterfaces::SharedPtr node_interfaces_;
     rclcpp::Logger logger_;
     rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr on_set_parameters_callback_handle_;
   };
