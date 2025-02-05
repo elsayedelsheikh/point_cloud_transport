@@ -83,16 +83,17 @@ public:
 
   template<class NodeType = rclcpp::Node>
   Subscriber(
-    std::shared_ptr<NodeType> node,    
+    std::shared_ptr<NodeType> node,
     const std::string & base_topic,
     const Callback & callback,
     SubLoaderPtr loader,
     const std::string & transport,
     rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
     rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions())
-      : Subscriber(create_node_interfaces(node), base_topic, 
-      callback, loader,transport, custom_qos, options)
-      {}
+  : Subscriber(
+      create_node_interfaces(node), base_topic,
+      callback, loader, transport, custom_qos, options)
+  {}
 
   ///
   /// \brief Returns the base point cloud topic.

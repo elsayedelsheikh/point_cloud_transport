@@ -35,6 +35,7 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <utility>
 #include <optional>
 
 #include "rclcpp/macros.hpp"
@@ -112,7 +113,8 @@ public:
   }
 
   ///
-  /// \brief Subscribe to an pointcloud topic, version for class member function with shared pointer.
+  /// \brief Subscribe to an pointcloud topic,
+  ///         version for class member function with shared pointer.
   ///
   template<class NodeType, class T>
   void subscribe(

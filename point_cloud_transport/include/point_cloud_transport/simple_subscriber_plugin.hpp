@@ -120,7 +120,7 @@ public:
       param_descriptor.name = param_name;
 
       try {
-        impl_->node_interfaces_->parameters->template declare_parameter<T>(param_name, value, 
+        impl_->node_interfaces_->parameters->template declare_parameter<T>(param_name, value,
           param_descriptor);
       } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
         RCLCPP_DEBUG(
@@ -221,7 +221,7 @@ protected:
       });
     this->declareParameters();
   }
-    
+
   void subscribeImpl(
     NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,
