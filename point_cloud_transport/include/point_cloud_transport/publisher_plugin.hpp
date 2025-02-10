@@ -41,6 +41,7 @@
 #include <rcpputils/tl_expected/expected.hpp>
 
 #include <point_cloud_transport/single_subscriber_publisher.hpp>
+#include "point_cloud_transport/node_interfaces.hpp"
 #include "point_cloud_transport/visibility_control.hpp"
 
 namespace point_cloud_transport
@@ -67,7 +68,7 @@ public:
   //! \brief Advertise a topic, simple version.
   POINT_CLOUD_TRANSPORT_PUBLIC
   void advertise(
-    std::shared_ptr<rclcpp::Node> node,
+    NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,
     rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
     const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions());
@@ -111,7 +112,7 @@ public:
 protected:
   //! Advertise a topic. Must be implemented by the subclass.
   virtual void advertiseImpl(
-    std::shared_ptr<rclcpp::Node> node, const std::string & base_topic,
+    NodeInterfaces::SharedPtr node_interfaces, const std::string & base_topic,
     rmw_qos_profile_t custom_qos,
     const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions()) = 0;
 };

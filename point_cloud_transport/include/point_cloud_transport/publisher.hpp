@@ -43,6 +43,7 @@
 #include <point_cloud_transport/loader_fwds.hpp>
 #include <point_cloud_transport/single_subscriber_publisher.hpp>
 
+#include "point_cloud_transport/node_interfaces.hpp"
 #include "point_cloud_transport/visibility_control.hpp"
 
 namespace point_cloud_transport
@@ -56,12 +57,15 @@ public:
   Publisher() = default;
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  Publisher(
-    std::shared_ptr<rclcpp::Node> node,
-    const std::string & base_topic,
-    PubLoaderPtr loader,
-    rmw_qos_profile_t custom_qos,
-    const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions());
+  Publisher(NodeInterfaces::SharedPtr node_interfaces, const std::string& base_topic, PubLoaderPtr loader,
+            rmw_qos_profile_t custom_qos, const rclcpp::PublisherOptions& options = rclcpp::PublisherOptions());
+
+  template <class NodeType = rclcpp::Node>
+  Publisher(std::shared_ptr<NodeType> node, const std::string& base_topic, PubLoaderPtr loader,
+            rmw_qos_profile_t custom_qos, const rclcpp::PublisherOptions& options = rclcpp::PublisherOptions())
+    : Publisher(create_node_interfaces(node), base_topic, loader, custom_qos, options)
+  {
+  }
 
   //! get total number of subscribers to all advertised topics.
   POINT_CLOUD_TRANSPORT_PUBLIC
@@ -73,33 +77,33 @@ public:
 
   //! Publish a point cloud on the topics associated with this Publisher.
   POINT_CLOUD_TRANSPORT_PUBLIC
-  void publish(const sensor_msgs::msg::PointCloud2 & message) const;
+  void publish(const sensor_msgs::msg::PointCloud2& message) const;
 
   //! Publish a point cloud on the topics associated with this Publisher.
   POINT_CLOUD_TRANSPORT_PUBLIC
-  void publish(const sensor_msgs::msg::PointCloud2::ConstSharedPtr & message) const;
+  void publish(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& message) const;
 
   //! Shutdown the advertisements associated with this Publisher.
   POINT_CLOUD_TRANSPORT_PUBLIC
   void shutdown();
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  operator void *() const;
+  operator void*() const;
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  bool operator<(const point_cloud_transport::Publisher & rhs) const
+  bool operator<(const point_cloud_transport::Publisher& rhs) const
   {
     return impl_ < rhs.impl_;
   }
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  bool operator!=(const point_cloud_transport::Publisher & rhs) const
+  bool operator!=(const point_cloud_transport::Publisher& rhs) const
   {
     return impl_ != rhs.impl_;
   }
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  bool operator==(const point_cloud_transport::Publisher & rhs) const
+  bool operator==(const point_cloud_transport::Publisher& rhs) const
   {
     return impl_ == rhs.impl_;
   }
