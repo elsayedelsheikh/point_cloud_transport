@@ -38,18 +38,22 @@
 namespace point_cloud_transport
 {
 
-void PublisherPlugin::advertise(NodeInterfaces::SharedPtr node_interfaces, const std::string& base_topic,
-                                rmw_qos_profile_t custom_qos, const rclcpp::PublisherOptions& options)
+void PublisherPlugin::advertise(
+  NodeInterfaces::SharedPtr node_interfaces,
+  const std::string & base_topic,
+  rmw_qos_profile_t custom_qos,
+  const rclcpp::PublisherOptions & options)
 {
   advertiseImpl(node_interfaces, base_topic, custom_qos, options);
 }
 
-void PublisherPlugin::publishPtr(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& message) const
+void PublisherPlugin::publishPtr(const sensor_msgs::msg::PointCloud2::ConstSharedPtr & message)
+const
 {
   publish(*message);
 }
 
-std::string PublisherPlugin::getLookupName(const std::string& transport_name)
+std::string PublisherPlugin::getLookupName(const std::string & transport_name)
 {
   return "point_cloud_transport/" + transport_name + "_pub";
 }

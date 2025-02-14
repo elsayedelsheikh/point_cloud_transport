@@ -69,7 +69,7 @@ namespace point_cloud_transport
 ///
 /// \tparam M Type of the published messages.
 ///
-template <class M>
+template<class M>
 class SimplePublisherPlugin : public point_cloud_transport::PublisherPlugin
 {
 public:
@@ -83,19 +83,17 @@ public:
 
   rclcpp::Logger getLogger() const
   {
-    if (simple_impl_)
-    {
+    if (simple_impl_) {
       return simple_impl_->logger_;
     }
     return rclcpp::get_logger("point_cloud_transport");
   }
 
   //! template function for getting parameter of a given type
-  template <typename T>
-  bool getParam(const std::string& parameter_name, T& value) const
+  template<typename T>
+  bool getParam(const std::string & parameter_name, T & value) const
   {
-    if (simple_impl_)
-    {
+    if (simple_impl_) {
       uint ns_len = simple_impl_->node_interfaces_->base->get_effective_namespace().length();
       std::string param_base_name = getTopic().substr(ns_len);
       std::replace(param_base_name.begin(), param_base_name.end(), '/', '.');
@@ -107,13 +105,13 @@ public:
     return false;
   }
 
-  template <typename T>
+  template<typename T>
   bool declareParam(
-      const std::string parameter_name, const T value,
-      const rcl_interfaces::msg::ParameterDescriptor& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor())
+    const std::string parameter_name, const T value,
+    const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
+    rcl_interfaces::msg::ParameterDescriptor())
   {
-    if (simple_impl_)
-    {
+    if (simple_impl_) {
       // Declare Parameters
       uint ns_len = simple_impl_->node_interfaces_->get_effective_namespace().length();
       std::string param_base_name = getTopic().substr(ns_len);
@@ -124,26 +122,26 @@ public:
       rcl_interfaces::msg::ParameterDescriptor param_descriptor = parameter_descriptor;
       param_descriptor.name = param_name;
 
-      simple_impl_->node_interfaces_->parameters->template declare_parameter<T>(param_name, value, param_descriptor);
+      simple_impl_->node_interfaces_->parameters->template declare_parameter<T>(
+        param_name, value, param_descriptor);
       return true;
     }
     return false;
   }
 
-  void
-  setParamCallback(rclcpp::node_interfaces::NodeParametersInterface::OnSetParametersCallbackType param_change_callback)
+  void setParamCallback(
+    rclcpp::node_interfaces::NodeParametersInterface::OnSetParametersCallbackType
+    param_change_callback)
   {
-    if (simple_impl_)
-    {
+    if (simple_impl_) {
       simple_impl_->on_set_parameters_callback_handle_ =
-          simple_impl_->node_interfaces_->parameters->add_on_set_parameters_callback(param_change_callback);
+        simple_impl_->node_interfaces_->parameters->add_on_set_parameters_callback(param_change_callback);
     }
   }
 
   uint32_t getNumSubscribers() const override
   {
-    if (simple_impl_)
-    {
+    if (simple_impl_) {
       return static_cast<uint32_t>(simple_impl_->pub_->get_subscription_count());
     }
     return 0;
@@ -151,18 +149,18 @@ public:
 
   std::string getTopic() const override
   {
-    if (simple_impl_)
-    {
+    if (simple_impl_) {
       return simple_impl_->pub_->get_topic_name();
     }
     return {};
   }
 
-  void publish(const sensor_msgs::msg::PointCloud2& message) const override
+  void publish(const sensor_msgs::msg::PointCloud2 & message) const override
   {
-    if (!simple_impl_ || !simple_impl_->pub_)
-    {
-      RCLCPP_ERROR(this->getLogger(), "Call to publish() on an invalid point_cloud_transport::SimplePublisherPlugin");
+    if (!simple_impl_ || !simple_impl_->pub_) {
+      RCLCPP_ERROR(
+        this->getLogger(),
+        "Call to publish() on an invalid point_cloud_transport::SimplePublisherPlugin");
       return;
     }
 
@@ -180,18 +178,17 @@ public:
   /// \return The output rmw serialized msg holding the compressed cloud message
   /// (if encoding succeeds), or an error message.
   ///
-  virtual TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2& raw) const = 0;
+  virtual TypedEncodeResult encodeTyped(
+    const sensor_msgs::msg::PointCloud2 & raw) const = 0;
 
-  EncodeResult encode(const sensor_msgs::msg::PointCloud2& raw) const override
+  EncodeResult encode(const sensor_msgs::msg::PointCloud2 & raw) const override
   {
     // encode the message using the expected transport method
     auto res = this->encodeTyped(raw);
-    if (!res)
-    {
+    if (!res) {
       return tl::make_unexpected(res.error());
     }
-    if (!res.value())
-    {
+    if (!res.value()) {
       return std::nullopt;
     }
 
@@ -205,16 +202,17 @@ public:
 protected:
   std::string base_topic_;
 
-  void advertiseImpl(NodeInterfaces::SharedPtr node_interfaces, const std::string& base_topic,
-                     rmw_qos_profile_t custom_qos, const rclcpp::PublisherOptions& options) override
+  void advertiseImpl(
+    std::shared_ptr<rclcpp::Node> node, const std::string & base_topic,
+    rmw_qos_profile_t custom_qos,
+    const rclcpp::PublisherOptions & options) override
   {
     std::string transport_topic = getTopicToAdvertise(base_topic);
-    simple_impl_ = std::make_unique<SimplePublisherPluginImpl>(node_interfaces);
+    simple_impl_ = std::make_unique<SimplePublisherPluginImpl>(node);
 
-    RCLCPP_DEBUG(simple_impl_->logger_, "getTopicToAdvertise: %s", transport_topic.c_str());
+    RCLCPP_DEBUG(node->get_logger(), "getTopicToAdvertise: %s", transport_topic.c_str());
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos), custom_qos);
-    simple_impl_->pub_ = rclcpp::create_publisher<M>(node_interfaces->parameters, node_interfaces->topics,
-                                                     transport_topic, qos, options);
+    simple_impl_->pub_ = node->create_publisher<M>(transport_topic, qos, options);
 
     base_topic_ = simple_impl_->pub_->get_topic_name();
 
@@ -222,7 +220,7 @@ protected:
   }
 
   //! Generic function for publishing the internal message type.
-  typedef std::function<void(const M&)> PublishFn;
+  typedef std::function<void (const M &)> PublishFn;
 
   ///
   /// \brief Publish a point cloud using the specified publish function.
@@ -231,16 +229,16 @@ protected:
   /// SimplePublisherPlugin to use this function for both normal broadcast publishing and
   /// single subscriber publishing (in subscription callbacks).
   ///
-  virtual void publish(const sensor_msgs::msg::PointCloud2& message, const PublishFn& publish_fn) const
+  virtual void publish(
+    const sensor_msgs::msg::PointCloud2 & message,
+    const PublishFn & publish_fn) const
   {
     const auto res = this->encodeTyped(message);
-    if (!res)
-    {
-      RCLCPP_ERROR(this->getLogger(), "Error encoding message by transport %s: %s.", this->getTransportName().c_str(),
-                   res.error().c_str());
-    }
-    else if (res.value())
-    {
+    if (!res) {
+      RCLCPP_ERROR(
+        this->getLogger(), "Error encoding message by transport %s: %s.",
+        this->getTransportName().c_str(), res.error().c_str());
+    } else if (res.value()) {
       publish_fn(res.value().value());
     }
   }
@@ -252,16 +250,16 @@ protected:
   /// SimplePublisherPlugin to use this function for both normal broadcast publishing and
   /// single subscriber publishing (in subscription callbacks).
   ///
-  virtual void publish(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& message, const PublishFn& publish_fn) const
+  virtual void publish(
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & message,
+    const PublishFn & publish_fn) const
   {
     const auto res = this->encodeTyped(*message.get());
-    if (!res)
-    {
-      RCLCPP_ERROR(this->getLogger(), "Error encoding message by transport %s: %s.", this->getTransportName().c_str(),
-                   res.error().c_str());
-    }
-    else if (res.value())
-    {
+    if (!res) {
+      RCLCPP_ERROR(
+        this->getLogger(), "Error encoding message by transport %s: %s.",
+        this->getTransportName().c_str(), res.error().c_str());
+    } else if (res.value()) {
       publish_fn(res.value().value());
     }
   }
@@ -271,7 +269,7 @@ protected:
   ///
   /// Defaults to \<base topic\>/\<transport name\>.
   ///
-  std::string getTopicToAdvertise(const std::string& base_topic) const override
+  std::string getTopicToAdvertise(const std::string & base_topic) const override
   {
     return base_topic + "/" + getTransportName();
   }
@@ -279,12 +277,13 @@ protected:
 private:
   struct SimplePublisherPluginImpl
   {
-    explicit SimplePublisherPluginImpl(NodeInterfaces::SharedPtr node_interfaces)
-      : node_interfaces_(std::move(node_interfaces)), logger_(node_interfaces_->logging->get_logger())
+    explicit SimplePublisherPluginImpl(std::shared_ptr<rclcpp::Node> node)
+    : node_(node),
+      logger_(node->get_logger())
     {
     }
 
-    NodeInterfaces::SharedPtr node_interfaces_;
+    std::shared_ptr<rclcpp::Node> node_;
     rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr on_set_parameters_callback_handle_;
     rclcpp::Logger logger_;
     typename rclcpp::Publisher<M>::SharedPtr pub_;
@@ -292,18 +291,18 @@ private:
 
   std::unique_ptr<SimplePublisherPluginImpl> simple_impl_;
 
-  typedef std::function<void(const sensor_msgs::msg::PointCloud2&)> PointCloudPublishFn;
+  typedef std::function<void (const sensor_msgs::msg::PointCloud2 &)> PointCloudPublishFn;
 
   ///
   /// \brief Returns a function object for publishing the transport-specific message type
   /// through some ROS publisher type.
   /// \param pub An object with method void publish(const M&)
   ///
-  template <class PubT>
-  PublishFn bindInternalPublisher(PubT* pub) const
+  template<class PubT>
+  PublishFn bindInternalPublisher(PubT * pub) const
   {
     // Bind PubT::publish(const Message&) as PublishFn
-    typedef void (PubT::*InternalPublishMemFn)(const M&);
+    typedef void (PubT::* InternalPublishMemFn)(const M &);
     InternalPublishMemFn internal_pub_mem_fn = &PubT::publish;
     return std::bind(internal_pub_mem_fn, pub, std::placeholders::_1);
   }

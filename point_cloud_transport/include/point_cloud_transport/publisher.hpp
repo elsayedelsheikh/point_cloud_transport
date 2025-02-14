@@ -77,33 +77,33 @@ public:
 
   //! Publish a point cloud on the topics associated with this Publisher.
   POINT_CLOUD_TRANSPORT_PUBLIC
-  void publish(const sensor_msgs::msg::PointCloud2& message) const;
+  void publish(const sensor_msgs::msg::PointCloud2 & message) const;
 
   //! Publish a point cloud on the topics associated with this Publisher.
   POINT_CLOUD_TRANSPORT_PUBLIC
-  void publish(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& message) const;
+  void publish(const sensor_msgs::msg::PointCloud2::ConstSharedPtr & message) const;
 
   //! Shutdown the advertisements associated with this Publisher.
   POINT_CLOUD_TRANSPORT_PUBLIC
   void shutdown();
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  operator void*() const;
+  operator void *() const;
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  bool operator<(const point_cloud_transport::Publisher& rhs) const
+  bool operator<(const point_cloud_transport::Publisher & rhs) const
   {
     return impl_ < rhs.impl_;
   }
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  bool operator!=(const point_cloud_transport::Publisher& rhs) const
+  bool operator!=(const point_cloud_transport::Publisher & rhs) const
   {
     return impl_ != rhs.impl_;
   }
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  bool operator==(const point_cloud_transport::Publisher& rhs) const
+  bool operator==(const point_cloud_transport::Publisher & rhs) const
   {
     return impl_ == rhs.impl_;
   }
