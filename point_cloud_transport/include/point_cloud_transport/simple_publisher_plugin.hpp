@@ -218,7 +218,7 @@ protected:
     RCLCPP_DEBUG(simple_impl_->logger_, "getTopicToAdvertise: %s", transport_topic.c_str());
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos), custom_qos);
     simple_impl_->pub_ = rclcpp::create_publisher<M>(
-      node_interfaces->topics,
+      node_interfaces->parameters, node_interfaces->topics,
       transport_topic, qos, options);
 
     base_topic_ = simple_impl_->pub_->get_topic_name();
