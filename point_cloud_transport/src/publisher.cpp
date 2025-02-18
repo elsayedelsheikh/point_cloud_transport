@@ -116,7 +116,8 @@ Publisher::Publisher(
   impl_->base_topic_ = point_cloud_topic;
   impl_->loader_ = loader;
 
-  // FIXME: rclcpp::node_interfaces::NodeBaseInterface neither have get_effective_namespace() nor get_sub_namespace()
+  // FIXME: rclcpp::node_interfaces::NodeBaseInterface
+  // neither have get_effective_namespace() nor get_sub_namespace()
   // auto ns_len = node_interfaces->base->get_effective_namespace().length();
   // std::string param_base_name = point_cloud_topic.substr(ns_len);
   // std::replace(param_base_name.begin(), param_base_name.end(), '/', '.');
@@ -139,7 +140,6 @@ Publisher::Publisher(
     whitelist_vec = node_interfaces->parameters->declare_parameter(
       param_base_name + ".enable_pub_plugins",
      rclcpp::ParameterValue(all_transport_names)).get<std::vector<std::string>>();
-
   } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
     RCLCPP_DEBUG_STREAM(
       impl_->logger_, param_base_name << ".enable_pub_plugins" << " was previously declared"
