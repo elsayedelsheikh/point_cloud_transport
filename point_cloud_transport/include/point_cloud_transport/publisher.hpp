@@ -57,13 +57,17 @@ public:
   Publisher() = default;
 
   POINT_CLOUD_TRANSPORT_PUBLIC
-  Publisher(NodeInterfaces::SharedPtr node_interfaces, const std::string& base_topic, PubLoaderPtr loader,
-            rmw_qos_profile_t custom_qos, const rclcpp::PublisherOptions& options = rclcpp::PublisherOptions());
+  Publisher(
+    NodeInterfaces::SharedPtr node_interfaces, const std::string & base_topic, PubLoaderPtr loader,
+    rmw_qos_profile_t custom_qos,
+    const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions());
 
-  template <class NodeType = rclcpp::Node>
-  Publisher(std::shared_ptr<NodeType> node, const std::string& base_topic, PubLoaderPtr loader,
-            rmw_qos_profile_t custom_qos, const rclcpp::PublisherOptions& options = rclcpp::PublisherOptions())
-    : Publisher(create_node_interfaces(node), base_topic, loader, custom_qos, options)
+  template<class NodeType = rclcpp::Node>
+  Publisher(
+    std::shared_ptr<NodeType> node, const std::string & base_topic, PubLoaderPtr loader,
+    rmw_qos_profile_t custom_qos,
+    const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions())
+  : Publisher(create_node_interfaces(node), base_topic, loader, custom_qos, options)
   {
   }
 

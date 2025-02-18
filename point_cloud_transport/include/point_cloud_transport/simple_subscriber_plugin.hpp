@@ -92,13 +92,17 @@ public:
   bool getParam(const std::string & parameter_name, T & value) const
   {
     if (impl_) {
-      uint ns_len = impl_->node_interfaces_->base->get_effective_namespace().length();
+      uint ns_len = strlen(impl_->node_interfaces_->base->get_namespace());
       std::string param_base_name = getTopic().substr(ns_len);
       std::replace(param_base_name.begin(), param_base_name.end(), '/', '.');
 
       std::string param_name = param_base_name + "." + parameter_name;
 
-      return impl_->node_interfaces_->parameters->get_parameter(param_name, value);
+      rclcpp::Parameter param;
+      if (impl_->node_interfaces_->parameters->get_parameter(param_name, param)) {
+        value = param.get_value<T>();
+        return true;
+      }
     }
     return false;
   }
@@ -110,7 +114,7 @@ public:
     rcl_interfaces::msg::ParameterDescriptor())
   {
     if (impl_) {
-      uint ns_len = impl_->node_interfaces_->base->get_effective_namespace().length();
+      uint ns_len = strlen(impl_->node_interfaces_->base->get_namespace());
       std::string param_base_name = getTopic().substr(ns_len);
       std::replace(param_base_name.begin(), param_base_name.end(), '/', '.');
 
@@ -120,8 +124,8 @@ public:
       param_descriptor.name = param_name;
 
       try {
-        impl_->node_interfaces_->parameters->template declare_parameter<T>(param_name, value,
-          param_descriptor);
+        impl_->node_interfaces_->parameters->declare_parameter(
+          param_name, rclcpp::ParameterValue(value), param_descriptor);
       } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
         RCLCPP_DEBUG(
           impl_->logger_, "%s was previously declared",

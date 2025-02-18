@@ -117,12 +117,17 @@ Publisher::Publisher(
   impl_->loader_ = loader;
 
   // FIXME: rclcpp::node_interfaces::NodeBaseInterface neither have get_effective_namespace() nor get_sub_namespace()
-  auto ns_len = node_interfaces->base->get_effective_namespace().length(); 
+  // auto ns_len = node_interfaces->base->get_effective_namespace().length();
+  // std::string param_base_name = point_cloud_topic.substr(ns_len);
+  // std::replace(param_base_name.begin(), param_base_name.end(), '/', '.');
+  // if (param_base_name.front() == '.') {
+  //   param_base_name = param_base_name.substr(1);
+  // }
+
+  auto ns_len = strlen(node_interfaces->base->get_namespace());
   std::string param_base_name = point_cloud_topic.substr(ns_len);
   std::replace(param_base_name.begin(), param_base_name.end(), '/', '.');
-  if (param_base_name.front() == '.') {
-    param_base_name = param_base_name.substr(1);
-  }
+
   std::vector<std::string> whitelist_vec;
 
   std::vector<std::string> all_transport_names;
@@ -131,12 +136,13 @@ Publisher::Publisher(
   }
 
   try {
-    // FIXME
-    whitelist_vec = node_interfaces->parameters->declare_parameter<std::vector<std::string>>(
-      param_base_name + ".enable_pub_plugins", all_transport_names);
+    whitelist_vec = node_interfaces->parameters->declare_parameter(
+      param_base_name + ".enable_pub_plugins",
+     rclcpp::ParameterValue(all_transport_names)).get<std::vector<std::string>>();
+
   } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
     RCLCPP_DEBUG_STREAM(
-      node->get_logger(), param_base_name << ".enable_pub_plugins" << " was previously declared"
+      impl_->logger_, param_base_name << ".enable_pub_plugins" << " was previously declared"
     );
     whitelist_vec =
       node_interfaces->parameters->get_parameter(
