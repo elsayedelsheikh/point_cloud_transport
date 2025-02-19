@@ -39,6 +39,7 @@
 #include <vector>
 
 #include "rclcpp/node.hpp"
+#include "point_cloud_transport/node_interfaces.hpp"
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
@@ -103,9 +104,17 @@ protected:
 /// \param custom_qos The QoS profile to use for the underlying publisher(s)
 /// \param options The publisher options to use for the underlying publisher(s)
 /// \return The advertised publisher
+[[deprecated("Use create_publisher(NodeInterfaces::SharedPtr, ...) instead")]]
 POINT_CLOUD_TRANSPORT_PUBLIC
 Publisher create_publisher(
   std::shared_ptr<rclcpp::Node> node,
+  const std::string & base_topic,
+  rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
+  const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions());
+
+POINT_CLOUD_TRANSPORT_PUBLIC
+Publisher create_publisher(
+  NodeInterfaces::SharedPtr node_interfaces,
   const std::string & base_topic,
   rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
   const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions());
@@ -118,9 +127,19 @@ Publisher create_publisher(
 /// \param custom_qos The QoS profile to use for the underlying publisher
 /// \param options The publisher options to use for the underlying publisher
 /// \return The subscriber
+[[deprecated("Use create_subscription(NodeInterfaces::SharedPtr, ...) instead")]]
 POINT_CLOUD_TRANSPORT_PUBLIC
 Subscriber create_subscription(
   std::shared_ptr<rclcpp::Node> node,
+  const std::string & base_topic,
+  const Subscriber::Callback & callback,
+  const std::string & transport,
+  rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
+  rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions());
+
+POINT_CLOUD_TRANSPORT_PUBLIC
+Subscriber create_subscription(
+  NodeInterfaces::SharedPtr node_interfaces,
   const std::string & base_topic,
   const Subscriber::Callback & callback,
   const std::string & transport,
@@ -135,6 +154,7 @@ public:
   //! Constructor
   POINT_CLOUD_TRANSPORT_PUBLIC
   explicit PointCloudTransport(rclcpp::Node::SharedPtr node);
+  explicit PointCloudTransport(NodeInterfaces::SharedPtr node_interfaces);
 
   POINT_CLOUD_TRANSPORT_PUBLIC
   ~PointCloudTransport() override = default;
@@ -144,7 +164,7 @@ public:
   {
     std::string ret;
     if (nullptr == transport_hints) {
-      TransportHints th(node_);
+      TransportHints th(node_interfaces_);
       ret = th.getTransport();
     } else {
       ret = transport_hints->getTransport();
@@ -161,7 +181,7 @@ public:
     rclcpp::PublisherOptions options = rclcpp::PublisherOptions();
     rmw_qos_profile_t custom_qos = rmw_qos_profile_sensor_data;
     custom_qos.depth = queue_size;
-    return Publisher(node_, base_topic, pub_loader_, custom_qos, options);
+    return Publisher(node_interfaces_, base_topic, pub_loader_, custom_qos, options);
   }
 
   //! Advertise a PointCloud2 topic, simple version.
@@ -173,7 +193,7 @@ public:
   {
     rmw_qos_profile_t custom_qos = rmw_qos_profile_sensor_data;
     custom_qos.depth = queue_size;
-    return Publisher(node_, base_topic, pub_loader_, custom_qos, options);
+    return Publisher(node_interfaces_, base_topic, pub_loader_, custom_qos, options);
   }
 
   POINT_CLOUD_TRANSPORT_PUBLIC
@@ -182,7 +202,7 @@ public:
     rmw_qos_profile_t custom_qos,
     const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions())
   {
-    return Publisher(node_, base_topic, pub_loader_, custom_qos, options);
+    return Publisher(node_interfaces_, base_topic, pub_loader_, custom_qos, options);
   }
 
   // //! Subscribe to a point cloud topic, version for arbitrary std::function object.
@@ -216,7 +236,7 @@ public:
   {
     (void)tracked_object;
     return Subscriber(
-      node_, base_topic, callback, sub_loader_,
+      node_interfaces_, base_topic, callback, sub_loader_,
       getTransportOrDefault(transport_hints), custom_qos, options);
   }
 
@@ -318,7 +338,7 @@ public:
   }
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  NodeInterfaces::SharedPtr node_interfaces_;
 };
 
 }  // namespace point_cloud_transport

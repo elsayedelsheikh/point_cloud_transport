@@ -67,8 +67,8 @@ public:
 
   //! \brief Advertise a topic, simple version.
   template<typename NodeT>
+  [[deprecated("Use advertise(NodeInterfaces::SharedPtr, ...) instead")]]
   POINT_CLOUD_TRANSPORT_PUBLIC
-  // [[deprecated("Use advertise(NodeInterfaces::SharedPtr, ...) instead")]]
   void advertise(
     std::shared_ptr<NodeT> node,
     const std::string & base_topic,
@@ -78,7 +78,7 @@ public:
     advertiseImpl(create_node_interfaces(node), base_topic, custom_qos, options);
   }
 
-  // POINT_CLOUD_TRANSPORT_PUBLIC
+  POINT_CLOUD_TRANSPORT_PUBLIC
   void advertise(
     NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,

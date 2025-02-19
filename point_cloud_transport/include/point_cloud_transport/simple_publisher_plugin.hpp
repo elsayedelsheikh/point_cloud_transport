@@ -101,7 +101,8 @@ public:
       std::string param_name = param_base_name + "." + parameter_name;
 
       rclcpp::Parameter param;
-      if (simple_impl_->node_interfaces_->parameters->get_parameter(param_name, param)) {
+      bool got_param = simple_impl_->node_interfaces_->parameters->get_parameter(param_name, param);
+      if (got_param) {
         value = param.get_value<T>();
         return true;
       }
