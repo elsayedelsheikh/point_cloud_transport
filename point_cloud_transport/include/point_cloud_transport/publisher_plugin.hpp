@@ -66,17 +66,13 @@ public:
   virtual std::string getTransportName() const = 0;
 
   //! \brief Advertise a topic, simple version.
-  template<typename NodeT>
-  [[deprecated("Use advertise(NodeInterfaces::SharedPtr, ...) instead")]]
+  // [[deprecated("Use advertise(NodeInterfaces::SharedPtr, ...) instead")]]
   POINT_CLOUD_TRANSPORT_PUBLIC
   void advertise(
-    std::shared_ptr<NodeT> node,
+    std::shared_ptr<rclcpp::Node> node,
     const std::string & base_topic,
     rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
-    const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions())
-  {
-    advertiseImpl(create_node_interfaces(node), base_topic, custom_qos, options);
-  }
+    const rclcpp::PublisherOptions & options = rclcpp::PublisherOptions());
 
   POINT_CLOUD_TRANSPORT_PUBLIC
   void advertise(
@@ -123,7 +119,7 @@ public:
 
 protected:
   //! Advertise a topic. Must be implemented by the subclass.
-  [[deprecated("Use advertiseImpl(NodeInterfaces::SharedPtr, ...) instead")]]
+  // [[deprecated("Use advertiseImpl(NodeInterfaces::SharedPtr, ...) instead")]]
   virtual void advertiseImpl(
     std::shared_ptr<rclcpp::Node> node, const std::string & base_topic,
     rmw_qos_profile_t custom_qos,

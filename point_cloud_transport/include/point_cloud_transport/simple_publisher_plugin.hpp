@@ -46,7 +46,7 @@
 #include <point_cloud_transport/point_cloud_common.hpp>
 #include <point_cloud_transport/publisher_plugin.hpp>
 #include <point_cloud_transport/single_subscriber_publisher.hpp>
-#include <point_cloud_transport/node_interfaces.hpp>
+#include "point_cloud_transport/node_interfaces.hpp"
 #include "point_cloud_transport/visibility_control.hpp"
 
 namespace point_cloud_transport
@@ -207,6 +207,24 @@ public:
 
 protected:
   std::string base_topic_;
+
+  // [[deprecated("Use advertiseImpl(NodeInterfaces::SharedPtr, ...) instead")]]
+  void advertiseImpl(
+    std::shared_ptr<rclcpp::Node> node, const std::string & base_topic,
+    rmw_qos_profile_t custom_qos,
+    const rclcpp::PublisherOptions & options) override
+  {
+    std::string transport_topic = getTopicToAdvertise(base_topic);
+    simple_impl_ = std::make_unique<SimplePublisherPluginImpl>(create_node_interfaces(node));
+
+    RCLCPP_DEBUG(node->get_logger(), "getTopicToAdvertise: %s", transport_topic.c_str());
+    auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos), custom_qos);
+    simple_impl_->pub_ = node->create_publisher<M>(transport_topic, qos, options);
+
+    base_topic_ = simple_impl_->pub_->get_topic_name();
+
+    this->declareParameters(base_topic_);
+  }
 
   void advertiseImpl(
     NodeInterfaces::SharedPtr node_interfaces, const std::string & base_topic,
