@@ -71,7 +71,7 @@ public:
   /// \param queue_size The subscription queue size
   /// \param transport The transport hint to pass along
   ///
-  [[deprecated("Use SubscriberFilter(NodeInterfaces::SharedPtr, ...) instead")]]
+  // [[deprecated("Use SubscriberFilter(NodeInterfaces::SharedPtr, ...) instead")]]
   POINT_CLOUD_TRANSPORT_PUBLIC
   SubscriberFilter(
     std::shared_ptr<rclcpp::Node> node, const std::string & base_topic,
@@ -97,7 +97,7 @@ public:
   /// \param custom_qos Custom quality of service
   /// \param options Subscriber options
   ///
-  [[deprecated("Use subscribe(NodeInterfaces::SharedPtr, ...) instead")]]
+  // [[deprecated("Use subscribe(NodeInterfaces::SharedPtr, ...) instead")]]
   POINT_CLOUD_TRANSPORT_PUBLIC
   void subscribe(
     std::shared_ptr<rclcpp::Node> node,
