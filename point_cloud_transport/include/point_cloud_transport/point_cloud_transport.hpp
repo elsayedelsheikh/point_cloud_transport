@@ -152,9 +152,12 @@ class PointCloudTransport : public PointCloudTransportLoader
 
 public:
   //! Constructor
+  template<typename NodeType = rclcpp::Node>
   POINT_CLOUD_TRANSPORT_PUBLIC
-  explicit PointCloudTransport(rclcpp::Node::SharedPtr node);
-  explicit PointCloudTransport(NodeInterfaces::SharedPtr node_interfaces);
+  explicit PointCloudTransport(std::shared_ptr<NodeType> node) {
+    PointCloudTransportLoader();
+    node_interfaces_ = create_node_interfaces(node);  
+  }
 
   POINT_CLOUD_TRANSPORT_PUBLIC
   ~PointCloudTransport() override = default;

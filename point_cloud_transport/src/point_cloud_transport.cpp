@@ -165,16 +165,4 @@ SubLoaderPtr PointCloudTransportLoader::getSubscriberLoader() const
 
 thread_local std::unique_ptr<point_cloud_transport::PointCloudTransportLoader> loader;
 
-PointCloudTransport::PointCloudTransport(rclcpp::Node::SharedPtr node)
-{
-  PointCloudTransportLoader();
-  node_interfaces_ = create_node_interfaces(node);
-}
-
-PointCloudTransport::PointCloudTransport(NodeInterfaces::SharedPtr node_interfaces)
-{
-  PointCloudTransportLoader();
-  node_interfaces_ = node_interfaces;
-}
-
 }  // namespace point_cloud_transport
