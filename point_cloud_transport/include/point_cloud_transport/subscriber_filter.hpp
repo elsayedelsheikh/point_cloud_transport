@@ -41,6 +41,7 @@
 
 #include <point_cloud_transport/point_cloud_transport.hpp>
 #include <point_cloud_transport/transport_hints.hpp>
+#include "point_cloud_transport/node_interfaces.hpp"
 #include "point_cloud_transport/visibility_control.hpp"
 
 namespace point_cloud_transport
@@ -70,9 +71,15 @@ public:
   /// \param queue_size The subscription queue size
   /// \param transport The transport hint to pass along
   ///
+  [[deprecated("Use SubscriberFilter(NodeInterfaces::SharedPtr, ...) instead")]]
   POINT_CLOUD_TRANSPORT_PUBLIC
   SubscriberFilter(
     std::shared_ptr<rclcpp::Node> node, const std::string & base_topic,
+    const std::string & transport);
+
+  POINT_CLOUD_TRANSPORT_PUBLIC
+  SubscriberFilter(
+    NodeInterfaces::SharedPtr node_interfaces, const std::string & base_topic,
     const std::string & transport);
 
   //! Empty constructor, use subscribe() to subscribe to a topic
@@ -90,9 +97,18 @@ public:
   /// \param custom_qos Custom quality of service
   /// \param options Subscriber options
   ///
+  [[deprecated("Use subscribe(NodeInterfaces::SharedPtr, ...) instead")]]
   POINT_CLOUD_TRANSPORT_PUBLIC
   void subscribe(
     std::shared_ptr<rclcpp::Node> node,
+    const std::string & base_topic,
+    const std::string & transport,
+    rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
+    rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions());
+
+  POINT_CLOUD_TRANSPORT_PUBLIC
+  void subscribe(
+    NodeInterfaces::SharedPtr node_interfaces,
     const std::string & base_topic,
     const std::string & transport,
     rmw_qos_profile_t custom_qos = rmw_qos_profile_default,

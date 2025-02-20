@@ -42,7 +42,7 @@
 
 #include <point_cloud_transport/loader_fwds.hpp>
 #include <point_cloud_transport/transport_hints.hpp>
-#include <point_cloud_transport/node_interfaces.hpp>
+#include "point_cloud_transport/node_interfaces.hpp"
 #include "point_cloud_transport/visibility_control.hpp"
 
 namespace point_cloud_transport

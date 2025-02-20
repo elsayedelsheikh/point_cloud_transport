@@ -40,6 +40,13 @@ SubscriberFilter::SubscriberFilter(
   subscribe(node, base_topic, transport);
 }
 
+SubscriberFilter::SubscriberFilter(
+  NodeInterfaces::SharedPtr node_interfaces, const std::string & base_topic,
+  const std::string & transport)
+{
+  subscribe(node_interfaces, base_topic, transport);
+}
+
 SubscriberFilter::SubscriberFilter()
 {
 }
@@ -59,6 +66,20 @@ void SubscriberFilter::subscribe(
   unsubscribe();
   sub_ = point_cloud_transport::create_subscription(
     node, base_topic,
+    std::bind(&SubscriberFilter::cb, this, std::placeholders::_1),
+    transport, custom_qos, options);
+}
+
+void SubscriberFilter::subscribe(
+  NodeInterfaces::SharedPtr node_interfaces,
+  const std::string & base_topic,
+  const std::string & transport,
+  rmw_qos_profile_t custom_qos,
+  rclcpp::SubscriptionOptions options)
+{
+  unsubscribe();
+  sub_ = point_cloud_transport::create_subscription(
+    node_interfaces, base_topic,
     std::bind(&SubscriberFilter::cb, this, std::placeholders::_1),
     transport, custom_qos, options);
 }
