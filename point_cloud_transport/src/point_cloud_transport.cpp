@@ -84,6 +84,18 @@ Publisher create_publisher(
 {
   return Publisher(node, base_topic, kImpl->getPubLoader(), custom_qos, options);
 }
+Publisher create_publisher(
+  std::shared_ptr<rclcpp::node_interfaces::NodeInterfaces<
+    rclcpp::node_interfaces::NodeBaseInterface,
+    rclcpp::node_interfaces::NodeParametersInterface,
+    rclcpp::node_interfaces::NodeTopicsInterface,
+    rclcpp::node_interfaces::NodeLoggingInterface>> & node_interfaces,
+  const std::string & base_topic,
+  rmw_qos_profile_t custom_qos,
+  const rclcpp::PublisherOptions & options)
+{
+  return Publisher(node_interfaces, base_topic, kImpl->getPubLoader(), custom_qos, options);
+}
 
 Subscriber create_subscription(
   std::shared_ptr<rclcpp::Node> node,
@@ -95,6 +107,22 @@ Subscriber create_subscription(
 {
   return Subscriber(
     node, base_topic, callback,
+    kImpl->getSubLoader(), transport, custom_qos, options);
+}
+Subscriber create_subscription(
+  std::shared_ptr<rclcpp::node_interfaces::NodeInterfaces<
+    rclcpp::node_interfaces::NodeBaseInterface,
+    rclcpp::node_interfaces::NodeParametersInterface,
+    rclcpp::node_interfaces::NodeTopicsInterface,
+    rclcpp::node_interfaces::NodeLoggingInterface>> & node_interfaces,
+  const std::string & base_topic,
+  const Subscriber::Callback & callback,
+  const std::string & transport,
+  rmw_qos_profile_t custom_qos,
+  rclcpp::SubscriptionOptions options)
+{
+  return Subscriber(
+    node_interfaces, base_topic, callback,
     kImpl->getSubLoader(), transport, custom_qos, options);
 }
 
@@ -143,10 +171,19 @@ SubLoaderPtr PointCloudTransportLoader::getSubscriberLoader() const
 
 thread_local std::unique_ptr<point_cloud_transport::PointCloudTransportLoader> loader;
 
-PointCloudTransport::PointCloudTransport(rclcpp::Node::SharedPtr node)
+PointCloudTransport::PointCloudTransport(
+  rclcpp::node_interfaces::NodeInterfaces<
+    rclcpp::node_interfaces::NodeBaseInterface,
+    rclcpp::node_interfaces::NodeParametersInterface,
+    rclcpp::node_interfaces::NodeTopicsInterface,
+    rclcpp::node_interfaces::NodeLoggingInterface> node_interfaces)
 {
   PointCloudTransportLoader();
-  node_ = node;
+  node_interfaces_ = std::make_shared<rclcpp::node_interfaces::NodeInterfaces<
+        rclcpp::node_interfaces::NodeBaseInterface,
+        rclcpp::node_interfaces::NodeParametersInterface,
+        rclcpp::node_interfaces::NodeTopicsInterface,
+        rclcpp::node_interfaces::NodeLoggingInterface>>(node_interfaces);
 }
 
 }  // namespace point_cloud_transport
