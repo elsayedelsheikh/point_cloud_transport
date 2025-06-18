@@ -127,13 +127,52 @@ public:
       rclcpp::node_interfaces::NodeTopicsInterface,
       rclcpp::node_interfaces::NodeLoggingInterface>> node_interfaces,
     const std::string & base_topic,
+    const rclcpp::QoS & qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(
+      rmw_qos_profile_default)),
+    rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions());
+
+  template<typename NodeT = rclcpp::Node::SharedPtr>
+  POINT_CLOUD_TRANSPORT_PUBLIC
+  void subscribe(
+    NodeT node,
+    const std::string & base_topic,
+    const rclcpp::QoS & qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(
+      rmw_qos_profile_default)),
+    rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions())
+  {
+    auto node_interfaces = std::make_shared<rclcpp::node_interfaces::NodeInterfaces<
+          rclcpp::node_interfaces::NodeBaseInterface,
+          rclcpp::node_interfaces::NodeParametersInterface,
+          rclcpp::node_interfaces::NodeTopicsInterface,
+          rclcpp::node_interfaces::NodeLoggingInterface>>(*node);
+    subscribe(node_interfaces, base_topic, qos, options);
+  }
+
+  POINT_CLOUD_TRANSPORT_PUBLIC
+  void subscribe(
+    std::shared_ptr<rclcpp::node_interfaces::NodeInterfaces<
+      rclcpp::node_interfaces::NodeBaseInterface,
+      rclcpp::node_interfaces::NodeParametersInterface,
+      rclcpp::node_interfaces::NodeTopicsInterface,
+      rclcpp::node_interfaces::NodeLoggingInterface>> node_interfaces,
+    const std::string & base_topic,
     const std::string & transport,
     rmw_qos_profile_t custom_qos = rmw_qos_profile_default,
     rclcpp::SubscriptionOptions options = rclcpp::SubscriptionOptions());
 
+  /**
+   * \brief Re-subscribe to a topic.  Only works if this subscriber has previously been subscribed to a topic.
+   */
+  POINT_CLOUD_TRANSPORT_PUBLIC
+  void subscribe();
+
   //! Force immediate unsubscription of this subscriber from its topic
   POINT_CLOUD_TRANSPORT_PUBLIC
   void unsubscribe();
+
+  //! Sets the transport
+  POINT_CLOUD_TRANSPORT_PUBLIC
+  void setTransport(const std::string & transport);
 
   POINT_CLOUD_TRANSPORT_PUBLIC
   std::string getTopic() const;
@@ -157,6 +196,18 @@ private:
   }
 
   Subscriber sub_;
+
+  std::shared_ptr<rclcpp::node_interfaces::NodeInterfaces<
+      rclcpp::node_interfaces::NodeBaseInterface,
+      rclcpp::node_interfaces::NodeParametersInterface,
+      rclcpp::node_interfaces::NodeTopicsInterface,
+      rclcpp::node_interfaces::NodeLoggingInterface>> node_interfaces_;
+
+  std::string topic_;
+  std::string transport_;
+  rclcpp::QoS qos_ = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(
+    rmw_qos_profile_default));
+  rclcpp::SubscriptionOptions options_;
 };
 
 }  // namespace point_cloud_transport

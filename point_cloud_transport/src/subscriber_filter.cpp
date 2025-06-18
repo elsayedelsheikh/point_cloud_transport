@@ -91,9 +91,46 @@ void SubscriberFilter::subscribe(
     transport, custom_qos, options);
 }
 
+void SubscriberFilter::subscribe(
+  std::shared_ptr<rclcpp::node_interfaces::NodeInterfaces<
+    rclcpp::node_interfaces::NodeBaseInterface,
+    rclcpp::node_interfaces::NodeParametersInterface,
+    rclcpp::node_interfaces::NodeTopicsInterface,
+    rclcpp::node_interfaces::NodeLoggingInterface>> node_interfaces,
+  const std::string & base_topic,
+  const rclcpp::QoS & qos,
+  rclcpp::SubscriptionOptions options)
+{
+  unsubscribe();
+  if (!transport_.empty()) {
+    topic_ = base_topic;
+    qos_ = qos;
+    options_ = options;
+
+    sub_ = point_cloud_transport::create_subscription(
+      node_interfaces, base_topic,
+      std::bind(&SubscriberFilter::cb, this, std::placeholders::_1),
+      transport_, qos.get_rmw_qos_profile(), options);
+
+    node_interfaces_ = node_interfaces;
+  }
+}
+
+void SubscriberFilter::subscribe()
+{
+  if (!topic_.empty()) {
+    subscribe(node_interfaces_, topic_, qos_, options_);
+  }
+}
+
 void SubscriberFilter::unsubscribe()
 {
   sub_.shutdown();
+}
+
+void SubscriberFilter::setTransport(const std::string & transport)
+{
+  transport_ = transport;
 }
 
 std::string SubscriberFilter::getTopic() const
